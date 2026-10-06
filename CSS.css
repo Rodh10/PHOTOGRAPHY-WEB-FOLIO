@@ -147,6 +147,7 @@ body {
 
 
 
+
 /* =========================
    IMAGES
    ========================= */
@@ -165,29 +166,43 @@ body {
 .image-block {
     width: 100%;
 
+    position: relative;
+
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     align-items: flex-start;
 
-    overflow: hidden;
+    overflow: visible;
 }
 
 .image-block img {
-    width: 60%;
-    height: 60%;
-
     display: block;
 
     object-fit: cover;
     object-position: bottom;
+
+    position: absolute;
+
+    bottom: 0;
+    left: 0;
+
+    z-index: 12;
+
+    transition:
+        height 3s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 
 
 .image-block h3 {
     width: 50%;
-    z-index: 10;
+
+    position: relative;
+
+    z-index: 11;
+
     margin-top: 8px;
 
     font-family: monospace;
@@ -196,10 +211,6 @@ body {
 
     line-height: 1;
 }
-
-
-
-
 
 
 

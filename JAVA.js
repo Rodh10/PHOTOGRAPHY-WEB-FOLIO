@@ -150,6 +150,13 @@ glitchWave();
 
 
 
+
+
+
+
+
+
+
 /* =========================
    RATIOS ALÉATOIRES DES IMAGES
    ========================= */
@@ -157,6 +164,38 @@ glitchWave();
 const imageBlocks = document.querySelectorAll(".image-block");
 
 imageBlocks.forEach(block => {
+
+    const image =
+        block.querySelector("img");
+
+
+    /* =========================
+       LARGEUR DE L'IMAGE
+       ========================= */
+
+    const imageWidth =
+        block.getBoundingClientRect().width * 0.6;
+
+    image.style.width =
+        `${imageWidth}px`;
+
+
+    /* =========================
+       HAUTEUR ORIGINELLE
+       ========================= */
+
+    const originalHeight =
+        imageWidth *
+        (image.naturalHeight / image.naturalWidth);
+
+
+    block.dataset.originalHeight =
+        originalHeight;
+
+
+    /* =========================
+       RATIO ALÉATOIRE
+       ========================= */
 
     const ratios = [
         16 / 9,
@@ -168,8 +207,117 @@ imageBlocks.forEach(block => {
     const ratio =
         ratios[Math.floor(Math.random() * ratios.length)];
 
-    block.style.aspectRatio = `1 / ${ratio}`;
+
+    block.dataset.ratio =
+        ratio;
+
+
+    /* =========================
+       HAUTEUR CROPÉE
+       ========================= */
+
+    const croppedHeight =
+        imageWidth * ratio;
+
+
+    block.dataset.croppedHeight =
+        croppedHeight;
+
+
+    /* =========================
+       TAILLE INITIALE VISIBLE
+       ========================= */
+
+    image.style.height =
+        `${Math.min(originalHeight, croppedHeight)}px`;
+
 });
+
+
+/* =========================
+   ANIMATION DES IMAGES AU SCROLL
+   ========================= */
+
+let imagesAnimated = false;
+
+window.addEventListener("wheel", (event) => {
+
+    if (event.deltaY <= 0) return;
+
+    if (imagesAnimated) return;
+
+    imagesAnimated = true;
+
+
+    imageBlocks.forEach((block, index) => {
+
+        const image =
+            block.querySelector("img");
+
+
+        /* =========================
+           HAUTEUR CROPÉE
+           ========================= */
+
+        const croppedHeight =
+            parseFloat(
+                block.dataset.croppedHeight
+            );
+
+
+        /* =========================
+           HAUTEUR ORIGINELLE
+           ========================= */
+
+        const originalHeight =
+            parseFloat(
+                block.dataset.originalHeight
+            );
+
+
+        /* =========================
+           DÉPART
+           ========================= */
+
+        image.style.height =
+            `${Math.min(
+                originalHeight,
+                croppedHeight
+            )}px`;
+
+
+        /* =========================
+           PHASE 1
+           L'IMAGE REGAGNE SA HAUTEUR
+           ========================= */
+
+        setTimeout(() => {
+
+            image.style.height =
+                `${originalHeight}px`;
+
+
+            /* =========================
+               PHASE 2
+               DÉPLACEMENT VERS LE HAUT
+               ========================= */
+
+            setTimeout(() => {
+
+                image.style.transform =
+                    "translateY(-250px)";
+
+            }, 500);
+
+        }, index * 100);
+
+    });
+
+});
+
+
+
+
 
 
 
