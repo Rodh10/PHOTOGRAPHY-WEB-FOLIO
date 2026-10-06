@@ -334,6 +334,7 @@ imageBlocks.forEach(block => {
 let imagesAnimated = false;
 let imageAnimationFinished = false;
 let imagesDisappeared = false;
+let descriptionsDisappeared = false;
 
 window.addEventListener("wheel", (event) => {
 
@@ -372,6 +373,25 @@ window.addEventListener("wheel", (event) => {
                     `translateY(${currentY - window.innerHeight}px)`;
 
             }, index * 50);
+
+        });
+
+
+        /* =========================
+        DISPARITION DES DESCRIPTIONS
+        ========================= */
+
+        descriptions.forEach((paragraph, index) => {
+
+            const span =
+                paragraph.querySelector("span");
+
+            setTimeout(() => {
+
+                span.style.transform =
+                    "translateY(-100%)";
+
+            }, index * 80);
 
         });
 
