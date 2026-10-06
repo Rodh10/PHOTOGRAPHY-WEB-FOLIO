@@ -82,22 +82,46 @@ body {
 
 
 
+
+
+
+
+
+.grid {
+    position: fixed;
+
+    left: 25%;
+    right: 40px;
+    top: 5%;
+    bottom: 10%;
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* =========================
    INFORMATIONS
    ========================= */
 
 .info-grid {
-    position: fixed;
-
-    left: 15%;
-    right: 40px;
-    top: 5%;
-
+    grid-column: 1 / -1;
 
     display: grid;
     grid-template-columns: repeat(4, 1fr);
 
-    gap: 0px;
+    gap: 0;
 
     font-family: monospace;
 }
@@ -112,8 +136,8 @@ body {
 .info-block p {
     max-width: 150px;
 
-    font-size: 13px;
-    line-height: 1.4;
+    font-size: 9px;
+    line-height: 1;
     font-weight: normal;
 }
 
@@ -127,18 +151,13 @@ body {
    IMAGES
    ========================= */
 
-
 .image-grid {
-    position: fixed;
-
-    left: 15%;
-    right: 40px;
-    bottom: 10%;
+    grid-column: 1 / -1;
 
     display: grid;
     grid-template-columns: repeat(4, 1fr);
 
-    gap: 0px;
+    gap: 0;
 
     align-items: end;
 }
