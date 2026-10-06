@@ -327,16 +327,61 @@ imageBlocks.forEach(block => {
 
 });
 
-
 /* =========================
    ANIMATION DES IMAGES AU SCROLL
    ========================= */
 
 let imagesAnimated = false;
+let imageAnimationFinished = false;
+let imagesDisappeared = false;
 
 window.addEventListener("wheel", (event) => {
 
     if (event.deltaY <= 0) return;
+
+
+    /* =========================
+       DEUXIÈME SCROLL
+       DISPARITION DES IMAGES
+       ========================= */
+
+    if (
+        imagesAnimated &&
+        imageAnimationFinished &&
+        !imagesDisappeared
+    ) {
+
+        imagesDisappeared = true;
+
+        imageBlocks.forEach((block, index) => {
+
+            const image =
+                block.querySelector("img");
+
+            const matrix =
+                new DOMMatrix(
+                    getComputedStyle(image).transform
+                );
+
+            const currentY =
+                matrix.m42;
+
+            setTimeout(() => {
+
+                image.style.transform =
+                    `translateY(${currentY - window.innerHeight}px)`;
+
+            }, index * 50);
+
+        });
+
+        return;
+    }
+
+
+    /* =========================
+       PREMIER SCROLL
+       ========================= */
 
     if (imagesAnimated) return;
 
@@ -500,6 +545,8 @@ window.addEventListener("wheel", (event) => {
 
             });
 
+            imageAnimationFinished = true;
+
         }, 700);
 
     }, totalDelay);
@@ -510,9 +557,5 @@ window.addEventListener("wheel", (event) => {
     }, 500);
 
 });
-
-
-
-
 
 
