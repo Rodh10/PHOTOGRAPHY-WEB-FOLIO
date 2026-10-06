@@ -242,6 +242,8 @@ body {
 .info-block h2 {
     position: relative;
     z-index: 3;
+    color: #515151;
+    font-size: 25px;
 }
 
 
