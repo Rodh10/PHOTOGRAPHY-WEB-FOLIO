@@ -305,7 +305,7 @@ window.addEventListener("wheel", (event) => {
             setTimeout(() => {
 
                 image.style.transform =
-                    "translateY(-250px)";
+                    "translateY(-300px)";
 
             }, 50);
 
@@ -398,7 +398,7 @@ window.addEventListener("wheel", (event) => {
                 const currentTransform =
                     image.getBoundingClientRect().top
                     - currentTop
-                    - 250
+                    - 300
                     + difference;
 
                 image.style.transform =
