@@ -145,3 +145,28 @@ function glitchWave() {
 
 
 glitchWave();
+
+
+
+
+
+/* =========================
+   RATIOS ALÉATOIRES DES IMAGES
+   ========================= */
+
+const imageBlocks = document.querySelectorAll(".image-block");
+
+imageBlocks.forEach(block => {
+
+    const ratios = [
+        16 / 9,
+        4 / 3,
+        3 / 2,
+        5 / 4,
+    ];
+
+    const ratio =
+        ratios[Math.floor(Math.random() * ratios.length)];
+
+    block.style.aspectRatio = `1 / ${ratio}`;
+});

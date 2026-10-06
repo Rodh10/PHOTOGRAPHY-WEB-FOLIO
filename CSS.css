@@ -119,3 +119,61 @@ body {
 }
 
 
+
+
+
+
+
+/* =========================
+   IMAGES
+   ========================= */
+
+
+.image-grid {
+    position: fixed;
+
+    left: 15%;
+    right: 40px;
+    bottom: 10%;
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 0px;
+
+    align-items: end;
+}
+
+.image-block {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+
+    overflow: hidden;
+}
+
+.image-block img {
+    width: 60%;
+    height: 60%;
+
+    display: block;
+
+    object-fit: cover;
+    object-position: bottom;
+}
+
+
+
+.image-block h3 {
+    z-index: 10;
+    margin-top: 8px;
+
+    font-family: monospace;
+    font-size: 12px;
+    font-weight: normal;
+
+    line-height: 1;
+}
