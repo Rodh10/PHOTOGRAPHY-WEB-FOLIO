@@ -401,7 +401,7 @@ window.addEventListener("wheel", (event) => {
         DÉPLACEMENT DES TITRES
         ========================= */
 
-        const titleMoves = [0, 210, 110, 0];
+        const titleMoves = [0, 300, 200, 100];
 
         /* PHASE 1 — déplacement horizontal */
 
