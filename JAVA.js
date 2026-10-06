@@ -256,6 +256,7 @@ function showDescriptions() {
    ========================= */
 
 const imageBlocks = document.querySelectorAll(".image-block");
+const imageTitles =document.querySelectorAll(".image-block h3");
 
 imageBlocks.forEach(block => {
 
@@ -334,7 +335,7 @@ imageBlocks.forEach(block => {
 let imagesAnimated = false;
 let imageAnimationFinished = false;
 let imagesDisappeared = false;
-let descriptionsDisappeared = false;
+
 
 window.addEventListener("wheel", (event) => {
 
@@ -394,6 +395,50 @@ window.addEventListener("wheel", (event) => {
             }, index * 80);
 
         });
+        
+
+        /* =========================
+        DÉPLACEMENT DES TITRES
+        ========================= */
+
+        const titleMoves = [0, 210, 110, 0];
+
+        /* PHASE 1 — déplacement horizontal */
+
+        setTimeout(() => {
+
+            imageTitles.forEach((title, index) => {
+
+                if (index === 0) return;
+
+                setTimeout(() => {
+
+                    title.style.transform =
+                        `translateX(${titleMoves[index]}px)`;
+
+                }, index * 80);
+
+            });
+
+        }, 100);
+
+
+        /* PHASE 2 — remontée vers le haut */
+
+        setTimeout(() => {
+
+            imageTitles.forEach((title, index) => {
+
+                title.style.transform =
+                    `translate(${titleMoves[index]}px, -450px)`;
+
+                title.style.zIndex = "15";
+
+            });
+
+        }, 500);
+
+
 
         return;
     }

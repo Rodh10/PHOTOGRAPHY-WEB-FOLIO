@@ -188,7 +188,7 @@ body {
     bottom: 0;
     left: 0;
 
-    z-index: 8;
+    z-index: 11;
 
     transition:
         height 2.5s cubic-bezier(0.22, 1, 0.36, 1),
@@ -211,6 +211,9 @@ body {
     font-weight: normal;
 
     line-height: 1;
+
+    transition: transform 0.5s ease;
+
 }
 
 
@@ -241,7 +244,7 @@ body {
 
 .info-block h2 {
     position: relative;
-    z-index: 10;
+    z-index: 13;
     color: #515151;
     font-size: 25px;
 }
@@ -270,7 +273,7 @@ body {
 
     background: #000000;
 
-    z-index: 10;
+    z-index: 14;
 
     pointer-events: none;
 }
@@ -327,7 +330,7 @@ body {
 
     position: absolute;
 
-    top: -50px;
+    top: -40px;
     left: 0;
 
     width: 100%;
@@ -335,7 +338,7 @@ body {
 
     background: #000000;
 
-    z-index: 9;
+    z-index: 12;
 
     pointer-events: none;
 }
