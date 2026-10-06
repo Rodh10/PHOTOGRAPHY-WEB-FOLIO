@@ -192,3 +192,58 @@ function positionMenu() {
 positionMenu();
 
 window.addEventListener("resize", positionMenu);
+
+
+
+
+
+
+
+
+
+/* =========================
+   DISPARITION AU SCROLL
+   ========================= */
+
+const infoBlocks = document.querySelectorAll(".info-block");
+
+window.addEventListener("wheel", (event) => {
+
+    if (event.deltaY <= 0) return;
+
+    infoBlocks.forEach((block, index) => {
+
+        const title = block.querySelector("h2");
+        const paragraph = block.querySelector("p");
+
+
+        /* =========================
+           TITRE
+           ========================= */
+
+        setTimeout(() => {
+
+            title.querySelector("span").style.transform =
+                "translateY(-100%)";
+
+        }, index * 80);
+
+
+        /* =========================
+           PARAGRAPHE
+           ========================= */
+
+        setTimeout(() => {
+
+            paragraph.querySelector("span").style.transform =
+                "translateY(-100%)";
+
+            const move = -paragraph.offsetHeight;
+
+            paragraph.style.setProperty("--move", `${move}px`);
+
+        }, 150 + index * 80);
+
+    });
+
+});

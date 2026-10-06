@@ -196,3 +196,113 @@ body {
 
     line-height: 1;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================
+   DISPARITION DES INFORMATIONS
+   ========================= */
+
+.info-block {
+    position: relative;
+
+    overflow: hidden;
+}
+
+
+/* =========================
+   TITRE
+   ========================= */
+
+.info-block h2 {
+    position: relative;
+    z-index: 3;
+}
+
+
+/* TEXTE DU TITRE */
+
+.info-block h2 span {
+    display: inline-block;
+
+    transition:
+        transform 0.8s cubic-bezier(0.77, 0, 0.18, 1);
+}
+
+/* BARRE DU TITRE */
+
+.info-block h2::before {
+    content: "";
+
+    position: absolute;
+
+    top: -46px;
+    left: 0;
+
+    width: 100%;
+    height: 50px;
+
+    background: #000000;
+
+    z-index: 4;
+
+    pointer-events: none;
+}
+
+
+
+
+
+/* =========================
+   PARAGRAPHE
+   ========================= */
+
+.info-block p {
+    position: relative;
+    z-index: 1;
+}
+
+.info-block p span {
+    display: inline-block;
+
+    transition:
+        transform 0.8s cubic-bezier(0.77, 0, 0.18, 1);
+}
+
+
+
+
+/* BARRE DU PARAGRAPHE */
+
+.info-block p::before {
+    content: "";
+
+    position: absolute;
+
+    top: -50px;
+    left: 0;
+
+    width: 100%;
+    height: 50px;
+
+    background: #000000;
+
+    z-index: 10;
+
+    pointer-events: none;
+
+}
+
