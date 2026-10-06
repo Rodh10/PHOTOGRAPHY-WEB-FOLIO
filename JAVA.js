@@ -170,3 +170,25 @@ imageBlocks.forEach(block => {
 
     block.style.aspectRatio = `1 / ${ratio}`;
 });
+
+
+
+/* =========================
+   POSITION DU MENU
+   ========================= */
+
+function positionMenu() {
+
+    const menu = document.querySelector(".menu");
+    const info = document.querySelector(".info-grid");
+
+    if (!menu || !info) return;
+
+    const infoBottom = info.getBoundingClientRect().bottom;
+
+    menu.style.top = `${infoBottom}px`;
+}
+
+positionMenu();
+
+window.addEventListener("resize", positionMenu);
