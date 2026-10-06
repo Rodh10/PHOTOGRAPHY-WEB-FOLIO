@@ -235,11 +235,25 @@ function showDescriptions() {
 
 
 
+const photos =
+    document.querySelectorAll(".photo-grid .image-item img");
 
 
 
+function showPhotos() {
 
+    photos.forEach((image, index) => {
 
+        setTimeout(() => {
+
+            image.style.transform =
+                "translateY(0)";
+
+        }, index * 80);
+
+    });
+
+}
 
 
 
@@ -439,7 +453,10 @@ window.addEventListener("wheel", (event) => {
         }, 500);
 
 
-
+        setTimeout(() => {
+            showPhotos();
+        }, 500);
+        
         return;
     }
 
