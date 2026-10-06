@@ -23,7 +23,8 @@ body {
 
 .menu {
     position: fixed;
-    left: 5%;
+    left: 10%;
+    top: 35%;
 
     display: flex;
     flex-direction: row;

@@ -421,36 +421,6 @@ window.addEventListener("wheel", (event) => {
 
 
 
-
-
-/* =========================
-   POSITION DU MENU
-   ========================= */
-
-function positionMenu() {
-
-    const menu = document.querySelector(".menu");
-    const info = document.querySelector(".info-grid");
-
-    if (!menu || !info) return;
-
-    const infoBottom = info.getBoundingClientRect().bottom;
-
-    menu.style.top = `${infoBottom}px`;
-}
-
-positionMenu();
-
-window.addEventListener("resize", positionMenu);
-
-
-
-
-
-
-
-
-
 /* =========================
    DISPARITION AU SCROLL
    ========================= */
