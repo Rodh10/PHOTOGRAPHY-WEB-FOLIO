@@ -190,8 +190,8 @@ body {
     z-index: 12;
 
     transition:
-        height 3s cubic-bezier(0.22, 1, 0.36, 1),
-        transform 3s cubic-bezier(0.22, 1, 0.36, 1);
+        height 2.5s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 2.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 

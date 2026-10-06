@@ -256,7 +256,7 @@ window.addEventListener("wheel", (event) => {
 
 
         /* =========================
-           HAUTEUR CROPÉE
+           HAUTEUR CROPPÉE
            ========================= */
 
         const croppedHeight =
@@ -307,13 +307,115 @@ window.addEventListener("wheel", (event) => {
                 image.style.transform =
                     "translateY(-250px)";
 
-            }, 500);
+            }, 50);
 
-        }, index * 100);
+        }, index * 50);
 
     });
 
+
+    /* =========================
+       ATTEND QUE TOUTES LES IMAGES
+       AIENT FINI LEUR DÉPLACEMENT
+       ========================= */
+
+    const totalDelay =
+        (imageBlocks.length - 1) * 100
+        + 500;
+
+
+    setTimeout(() => {
+
+
+        /* =========================
+           REPÈRE LE TOP COMMUN
+           ========================= */
+
+        const tops =
+            [...imageBlocks].map(block => {
+
+                const image =
+                    block.querySelector("img");
+
+                return image.getBoundingClientRect().top;
+
+            });
+
+
+        const targetTop =
+            Math.min(...tops);
+
+
+        /* =========================
+           PHASE 3
+           RÉDUCTION À LA HAUTEUR
+           CROPPÉE
+           ========================= */
+
+        imageBlocks.forEach(block => {
+
+            const image =
+                block.querySelector("img");
+
+
+            const croppedHeight =
+                parseFloat(
+                    block.dataset.croppedHeight
+                );
+
+
+            image.style.height =
+                `${croppedHeight}px`;
+
+        });
+
+
+        /* =========================
+           PHASE 4
+           ATTEND QUE LA RÉDUCTION
+           SOIT TERMINÉE
+           ========================= */
+
+        setTimeout(() => {
+
+
+            /* =========================
+               TOUTES LES IMAGES
+               VERS LE MÊME TOP
+               ========================= */
+
+            imageBlocks.forEach(block => {
+
+                const image =
+                    block.querySelector("img");
+
+                const currentTop =
+                    image.getBoundingClientRect().top;
+
+                const difference =
+                    targetTop - currentTop;
+
+                const currentTransform =
+                    image.getBoundingClientRect().top
+                    - currentTop
+                    - 250
+                    + difference;
+
+                image.style.transform =
+                    `translateY(${currentTransform}px)`;
+
+            });
+
+        }, 700);
+
+    }, totalDelay);
+
 });
+
+
+
+
+
 
 
 
