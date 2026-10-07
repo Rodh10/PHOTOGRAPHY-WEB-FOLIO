@@ -366,7 +366,7 @@ function startPhotoLoop() {
     DÉCALAGE HORIZONTAL DES ÉLÉMENTS ACTIFS
     */
 
-    const activeLeft = 950;
+    const activeLeft = 1050;
 
     function moveOnePhoto(index) {
 
@@ -387,7 +387,7 @@ function startPhotoLoop() {
                ========================= */
 
             firstItem.style.transition =
-                `transform ${duration}ms ms ease-out`;
+                `transform ${duration}ms ease-out`;
 
             firstItem.style.transform =
                 "translateX(-100%)";
@@ -415,7 +415,7 @@ function startPhotoLoop() {
                 items.forEach(item => {
 
                     item.style.transition =
-                        "none";
+                        `transform 200ms ease-out`;
 
                     item.style.transform =
                         "translateX(0)";
@@ -434,10 +434,11 @@ function startPhotoLoop() {
                     "50";
 
                 firstImage.style.transition =
-                    "none";
+                    `transform 200ms ease-out`;
+
 
                 firstNumber.style.transition =
-                    "none";
+                    `transform 200ms ease-out`;
 
 
 
@@ -515,10 +516,10 @@ function startPhotoLoop() {
                        ========================= */
 
                     firstImage.style.transition =
-                        `transform ${duration}ms cubic-bezier(0.77, 0, 0.18, 1)`;
+                        `transform ${duration}ms ease-out`;
 
                     firstNumber.style.transition =
-                        `transform ${duration}ms cubic-bezier(0.77, 0, 0.18, 1)`;
+                        `transform ${duration}ms ease-out`;
 
 
                     firstImage.style.transform =
@@ -599,7 +600,7 @@ function startPhotoLoop() {
         if (isStartOfSecondRow) {
 
             currentItem.style.transition =
-                `transform ${duration}ms cubic-bezier(0.77, 0, 0.18, 1),
+                `transform ${duration}ms ease-out,
                  opacity ${duration}ms ease`;
 
             currentItem.style.transform =
@@ -611,7 +612,7 @@ function startPhotoLoop() {
         } else {
 
             currentItem.style.transition =
-                `transform ${duration}ms cubic-bezier(0.77, 0, 0.18, 1)`;
+                `transform ${duration}ms ease-out`;
 
             currentItem.style.transform =
                 "translateX(-100%)";
@@ -626,7 +627,7 @@ function startPhotoLoop() {
         setTimeout(() => {
 
             previousItem.style.transition =
-                `transform ${duration}ms cubic-bezier(0.77, 0, 0.18, 1)`;
+                `transform ${duration}ms ease-out`;
 
             previousItem.style.transform =
                 "translateX(-100%)";
