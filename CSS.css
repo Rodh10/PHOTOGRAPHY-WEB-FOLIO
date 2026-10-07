@@ -398,7 +398,7 @@ body {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
 
-    column-gap: 5px;
+    column-gap: 2px;
     row-gap: 40px;
     width: 60%;
 
@@ -420,7 +420,7 @@ body {
 .photo-grid .image-item img {
     display: block;
 
-    width: 70%;
+    width: 90%;
     height: auto;
 
     transform: translateY(100%);
