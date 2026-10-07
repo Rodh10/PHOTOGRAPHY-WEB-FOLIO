@@ -312,6 +312,372 @@ function showPhotos() {
 
 
 
+/* =========================
+   BOUCLE DES PHOTOS
+   ========================= */
+
+let photoLoopStarted = false;
+
+function startPhotoLoop() {
+
+    if (photoLoopStarted) return;
+
+    photoLoopStarted = true;
+
+    const photoGrid =
+        document.querySelector(".photo-grid");
+
+    const items =
+        [...photoGrid.querySelectorAll(".image-item")];
+
+    const duration = 200;
+
+    /* =========================
+       PAUSE ENTRE LES CYCLES
+       ========================= */
+
+    const pauseDuration = 10000;
+
+    /* =========================
+       DÉCALAGE ENTRE LES IMAGES
+       ========================= */
+
+    const activationDelay = 40;
+
+    /* =========================
+       PHOTO ACTIVE
+       ========================= */
+
+    const activeScale = 4;
+
+    /*
+       TOP FIXE DE LA PHOTO ACTIVE
+    */
+
+    const activeTop = 170;
+
+    /*
+       TOP FIXE DU NUMÉRO ACTIF
+    */
+
+    const numberTop = 120;
+
+    /*
+    DÉCALAGE HORIZONTAL DES ÉLÉMENTS ACTIFS
+    */
+
+    const activeLeft = 950;
+
+    function moveOnePhoto(index) {
+
+        if (index <= 0) {
+
+            const firstItem =
+                items[0];
+
+            const firstImage =
+                firstItem.querySelector("img");
+
+            const firstNumber =
+                firstItem.querySelector("h1");
+
+
+            /* =========================
+               PREMIÈRE IMAGE QUI SORT
+               ========================= */
+
+            firstItem.style.transition =
+                `transform ${duration}ms ms ease-out`;
+
+            firstItem.style.transform =
+                "translateX(-100%)";
+
+
+            setTimeout(() => {
+
+                /* =========================
+                   001 PASSE À LA FIN
+                   ========================= */
+
+                items.shift();
+
+                items.push(firstItem);
+
+                items.forEach(item => {
+                    photoGrid.appendChild(item);
+                });
+
+
+                /* =========================
+                   RESET
+                   ========================= */
+
+                items.forEach(item => {
+
+                    item.style.transition =
+                        "none";
+
+                    item.style.transform =
+                        "translateX(0)";
+
+                    item.style.opacity =
+                        "1";
+
+                });
+
+
+                /* =========================
+                   PHOTO ACTIVE
+                   ========================= */
+
+                firstItem.style.zIndex =
+                    "50";
+
+                firstImage.style.transition =
+                    "none";
+
+                firstNumber.style.transition =
+                    "none";
+
+
+
+
+                /* =========================
+                IMAGE ACTIVE
+                ========================= */
+
+                const imageRect =
+                    firstImage.getBoundingClientRect();
+
+                const scaleCorrection =
+                    (imageRect.height * (activeScale - 1)) / 2;
+
+                const activeTranslateY =
+                    activeTop -
+                    imageRect.top +
+                    scaleCorrection;
+
+                const activeTranslateX =
+                    activeLeft -
+                    imageRect.left +
+                    (imageRect.width * (activeScale - 1)) / 2;
+
+
+                firstImage.style.transform =
+                    `translate(
+                        ${activeTranslateX}px,
+                        ${activeTranslateY}px
+                    )
+                    scale(${activeScale})`;
+
+
+
+                /* =========================
+                NUMÉRO ACTIF
+                ========================= */
+
+                const numberRect =
+                    firstNumber.getBoundingClientRect();
+
+                const numberScaleCorrection =
+                    (numberRect.height * (activeScale - 1)) / 2;
+
+                const numberTranslateY =
+                    numberTop -
+                    numberRect.top +
+                    numberScaleCorrection;
+
+                const numberTranslateX =
+                    activeLeft -
+                    numberRect.left +
+                    (numberRect.width * (activeScale - 1)) / 2;
+
+
+                firstNumber.style.transform =
+                    `translate(
+                        ${numberTranslateX}px,
+                        ${numberTranslateY}px
+                    )
+                    scale(${activeScale})`;
+
+
+                /*
+                   Pause pendant laquelle
+                   la photo et son numéro
+                   restent grands
+                */
+
+                setTimeout(() => {
+
+                    /* =========================
+                       PHOTO + NUMÉRO REPRENNENT
+                       LEUR TAILLE NORMALE
+                       ========================= */
+
+                    firstImage.style.transition =
+                        `transform ${duration}ms cubic-bezier(0.77, 0, 0.18, 1)`;
+
+                    firstNumber.style.transition =
+                        `transform ${duration}ms cubic-bezier(0.77, 0, 0.18, 1)`;
+
+
+                    firstImage.style.transform =
+                        "translate(0, 0) scale(1)";
+
+                    firstNumber.style.transform =
+                        "translate(0, 0) scale(1)";
+
+
+                    setTimeout(() => {
+
+                        firstImage.style.width =
+                            "";
+
+                        firstImage.style.height =
+                            "";
+
+                        firstImage.style.maxWidth =
+                            "";
+
+                        firstImage.style.maxHeight =
+                            "";
+
+                        firstImage.style.objectFit =
+                            "";
+
+                        firstItem.style.overflow =
+                            "";
+
+                        firstItem.style.zIndex =
+                            "20";
+
+                    }, duration);
+
+
+                    /*
+                       Petit délai pour laisser
+                       la photo rejoindre le fil
+                    */
+
+                    setTimeout(() => {
+
+                        moveOnePhoto(
+                            items.length - 1
+                        );
+
+                    }, duration);
+
+                }, pauseDuration);
+
+            }, duration);
+
+            return;
+        }
+
+
+        const currentItem =
+            items[index];
+
+        const previousItem =
+            items[index - 1];
+
+
+        /*
+           La première image de la
+           deuxième ligne correspond
+           à l'index 8.
+        */
+
+        const isStartOfSecondRow =
+            index === 8;
+
+
+        /* =========================
+           IMAGE ACTUELLE
+           ========================= */
+
+        if (isStartOfSecondRow) {
+
+            currentItem.style.transition =
+                `transform ${duration}ms cubic-bezier(0.77, 0, 0.18, 1),
+                 opacity ${duration}ms ease`;
+
+            currentItem.style.transform =
+                "translateX(-100%)";
+
+            currentItem.style.opacity =
+                "0";
+
+        } else {
+
+            currentItem.style.transition =
+                `transform ${duration}ms cubic-bezier(0.77, 0, 0.18, 1)`;
+
+            currentItem.style.transform =
+                "translateX(-100%)";
+
+        }
+
+
+        /* =========================
+           IMAGE PRÉCÉDENTE
+           ========================= */
+
+        setTimeout(() => {
+
+            previousItem.style.transition =
+                `transform ${duration}ms cubic-bezier(0.77, 0, 0.18, 1)`;
+
+            previousItem.style.transform =
+                "translateX(-100%)";
+
+
+            /* =========================
+               PASSAGE 2e → 1re LIGNE
+               ========================= */
+
+            if (isStartOfSecondRow) {
+
+                currentItem.style.transition =
+                    "none";
+
+                currentItem.style.transform =
+                    "translateX(0)";
+
+                currentItem.style.opacity =
+                    "0";
+            }
+
+
+            /* =========================
+               IMAGE SUIVANTE
+               ========================= */
+
+            moveOnePhoto(index - 1);
+
+        }, activationDelay);
+
+    }
+
+
+    /* =========================
+       PREMIER CYCLE
+       ========================= */
+
+    setTimeout(() => {
+
+        moveOnePhoto(
+            items.length - 1
+        );
+
+    }, 1000);
+
+}
+
+
+
+
+
 
 /* =========================
    RATIOS ALÉATOIRES DES IMAGES
@@ -475,7 +841,7 @@ function disappearDescriptions() {
 
 function moveTitlesHorizontal() {
 
-    const titleMoves = [0, 350, 210, 100];
+    const titleMoves = [0, 350, 230, 100];
 
     imageTitles.forEach((title, index) => {
 
@@ -499,7 +865,7 @@ function moveTitlesHorizontal() {
 
 function moveTitlesTop() {
 
-    const titleMoves = [0, 350, 210, 100];
+    const titleMoves = [0, 350, 230, 100];
     const limitTop = 40;
 
     imageTitles.forEach((title, index) => {
@@ -520,10 +886,6 @@ function moveTitlesTop() {
 }
 
 
-/* =========================
-   ANIMATION COMPLÈTE
-   DES TITRES
-   ========================= */
 
 function animateTitles() {
 
@@ -543,6 +905,12 @@ function animateTitles() {
     setTimeout(() => {
 
         showPhotos();
+
+        setTimeout(() => {
+
+            startPhotoLoop();
+
+        }, 3000);
 
     }, 700);
 

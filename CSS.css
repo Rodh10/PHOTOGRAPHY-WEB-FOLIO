@@ -416,7 +416,6 @@ body {
     flex-direction: column;
     align-items: flex-start;
 
-    overflow: hidden;
 }
 
 .photo-grid .image-item h1 {
