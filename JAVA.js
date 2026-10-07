@@ -241,13 +241,23 @@ function showDescriptions() {
 }
 
 
-const photos =
-    document.querySelectorAll(".photo-grid .image-item img");
+
+
 
 
 /* =========================
    PROTECTION DES PHOTOS
    ========================= */
+
+
+
+const photos =
+    document.querySelectorAll(".photo-grid .image-item img");
+
+const photoNumbers =
+    document.querySelectorAll(".photo-grid .image-item h1");
+
+
 
 photos.forEach(image => {
 
@@ -265,6 +275,7 @@ photos.forEach(image => {
 /* =========================
    AFFICHAGE DES PHOTOS
    ========================= */
+
 
 function showPhotos() {
 
@@ -289,12 +300,14 @@ function showPhotos() {
             image.style.transform =
                 "translateY(0)";
 
+            photoNumbers[index].style.transform =
+                "translateY(0)";
+
         }, index * 80);
 
     });
 
 }
-
 
 
 
