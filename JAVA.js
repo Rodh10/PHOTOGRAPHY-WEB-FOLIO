@@ -270,7 +270,7 @@ function showPhotos() {
 
     const photoGrid = document.querySelector(".photo-grid");
 
-    const limitTop = 100;
+    const limitTop = 150;
 
     const gridTop =
         photoGrid.getBoundingClientRect().top;
@@ -525,9 +525,13 @@ function animateTitles() {
 
         moveTitlesTop();
 
+    }, 500);
+
+    setTimeout(() => {
+
         showPhotos();
 
-    }, 500);
+    }, 700);
 
 }
 
@@ -744,3 +748,12 @@ window.addEventListener("wheel", (event) => {
     startImageAnimation();
 
 });
+
+
+
+
+
+
+
+
+
