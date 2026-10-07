@@ -360,17 +360,14 @@ body {
     gap: 0;
     font-family: monospace;
     font-size: 11px;
-    overflow: hidden;
-    z-index: 20;
+    z-index: 6;
     align-items: start;
     margin-top: 200px;
     color: #515151;
 
-
 }
 
 .description-grid p {
-    overflow: hidden;
     max-width: 150px;
 
     font-size: 11px;
@@ -399,28 +396,23 @@ body {
     grid-column: 1 / -1;
 
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(5, 1fr);
 
     column-gap: 30px;
     row-gap: 40px;
-
-    padding: 0 20px;
+    width: 60%;
 
     align-items: start;
-    justify-items: center;
-
-    margin-top: -400px;
 
     z-index: 20;
 
-    overflow: hidden;
 }
 
 .photo-grid .image-item {
     width: 100%;
 
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
 
     overflow: hidden;
 }

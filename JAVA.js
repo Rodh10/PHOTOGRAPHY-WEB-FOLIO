@@ -208,13 +208,19 @@ window.addEventListener("wheel", (event) => {
 
 
 
-
 /* =========================
    APPARITION DES DESCRIPTIONS
    ========================= */
 
 const descriptions =
     document.querySelectorAll(".description-grid p");
+
+descriptions.forEach(paragraph => {
+
+    paragraph.querySelector("span").style.opacity = "0";
+
+});
+
 
 function showDescriptions() {
 
@@ -225,6 +231,9 @@ function showDescriptions() {
             paragraph.querySelector("span").style.transform =
                 "translateY(0)";
 
+            paragraph.querySelector("span").style.opacity =
+                "1";
+
         }, index * 80);
 
     });
@@ -232,15 +241,46 @@ function showDescriptions() {
 }
 
 
-
-
-
 const photos =
     document.querySelectorAll(".photo-grid .image-item img");
 
 
+/* =========================
+   PROTECTION DES PHOTOS
+   ========================= */
+
+photos.forEach(image => {
+
+    image.addEventListener("contextmenu", e => {
+        e.preventDefault();
+    });
+
+    image.addEventListener("dragstart", e => {
+        e.preventDefault();
+    });
+
+});
+
+
+/* =========================
+   AFFICHAGE DES PHOTOS
+   ========================= */
 
 function showPhotos() {
+
+    const photoGrid = document.querySelector(".photo-grid");
+
+    const limitTop = 100;
+
+    const gridTop =
+        photoGrid.getBoundingClientRect().top;
+
+    const moveY =
+        limitTop - gridTop;
+
+    photoGrid.style.transform =
+        `translateY(${moveY}px)`;
+
 
     photos.forEach((image, index) => {
 
@@ -254,11 +294,6 @@ function showPhotos() {
     });
 
 }
-
-
-
-
-
 
 
 
@@ -342,6 +377,14 @@ imageBlocks.forEach(block => {
 
 });
 
+
+
+
+
+
+
+
+
 /* =========================
    ANIMATION DES IMAGES AU SCROLL
    ========================= */
@@ -351,154 +394,165 @@ let imageAnimationFinished = false;
 let imagesDisappeared = false;
 
 
-window.addEventListener("wheel", (event) => {
+/* =========================
+   DISPARITION DES IMAGES
+   ========================= */
 
-    if (event.deltaY <= 0) return;
-
-
-    /* =========================
-       DEUXIÈME SCROLL
-       DISPARITION DES IMAGES
-       ========================= */
-
-    if (
-        imagesAnimated &&
-        imageAnimationFinished &&
-        !imagesDisappeared
-    ) {
-
-        imagesDisappeared = true;
-
-        imageBlocks.forEach((block, index) => {
-
-            const image =
-                block.querySelector("img");
-
-            const matrix =
-                new DOMMatrix(
-                    getComputedStyle(image).transform
-                );
-
-            const currentY =
-                matrix.m42;
-
-            setTimeout(() => {
-
-                image.style.transform =
-                    `translateY(${currentY - window.innerHeight}px)`;
-
-            }, index * 50);
-
-        });
-
-
-        /* =========================
-        DISPARITION DES DESCRIPTIONS
-        ========================= */
-
-        descriptions.forEach((paragraph, index) => {
-
-            const span =
-                paragraph.querySelector("span");
-
-            setTimeout(() => {
-
-                span.style.transform =
-                    "translateY(-100%)";
-
-            }, index * 80);
-
-        });
-        
-
-        /* =========================
-        DÉPLACEMENT DES TITRES
-        ========================= */
-
-        const titleMoves = [0, 300, 200, 100];
-
-        /* PHASE 1 — déplacement horizontal */
-
-        setTimeout(() => {
-
-            imageTitles.forEach((title, index) => {
-
-                if (index === 0) return;
-
-                setTimeout(() => {
-
-                    title.style.transform =
-                        `translateX(${titleMoves[index]}px)`;
-
-                }, index * 80);
-
-            });
-
-        }, 100);
-
-
-        /* PHASE 2 — remontée vers le haut */
-
-        setTimeout(() => {
-
-            imageTitles.forEach((title, index) => {
-
-                title.style.transform =
-                    `translate(${titleMoves[index]}px, -450px)`;
-
-                title.style.zIndex = "15";
-
-            });
-
-        }, 500);
-
-
-        setTimeout(() => {
-            showPhotos();
-        }, 500);
-        
-        return;
-    }
-
-
-    /* =========================
-       PREMIER SCROLL
-       ========================= */
-
-    if (imagesAnimated) return;
-
-    imagesAnimated = true;
-
+function disappearImages() {
 
     imageBlocks.forEach((block, index) => {
 
         const image =
             block.querySelector("img");
 
+        const matrix =
+            new DOMMatrix(
+                getComputedStyle(image).transform
+            );
 
-        /* =========================
-           HAUTEUR CROPPÉE
-           ========================= */
+        const currentY =
+            matrix.m42;
+
+        setTimeout(() => {
+
+            image.style.transform =
+                `translateY(${currentY - window.innerHeight}px)`;
+
+        }, index * 50);
+
+    });
+
+}
+
+
+/* =========================
+   DISPARITION DES DESCRIPTIONS
+   ========================= */
+
+function disappearDescriptions() {
+
+    descriptions.forEach((paragraph, index) => {
+
+        const span =
+            paragraph.querySelector("span");
+
+        setTimeout(() => {
+
+            span.style.transform =
+                "translateY(-100%)";
+
+        }, index * 80);
+
+        setTimeout(() => {
+
+            span.style.opacity =
+                "0";
+
+        }, index * 80 + 200);
+
+    });
+
+}
+
+
+/* =========================
+   DÉPLACEMENT HORIZONTAL
+   DES TITRES
+   ========================= */
+
+function moveTitlesHorizontal() {
+
+    const titleMoves = [0, 350, 210, 100];
+
+    imageTitles.forEach((title, index) => {
+
+        if (index === 0) return;
+
+        setTimeout(() => {
+
+            title.style.transform =
+                `translateX(${titleMoves[index]}px)`;
+
+        }, index * 80);
+
+    });
+
+}
+
+
+/* =========================
+   REMONTÉE DES TITRES
+   ========================= */
+
+function moveTitlesTop() {
+
+    const titleMoves = [0, 350, 210, 100];
+    const limitTop = 40;
+
+    imageTitles.forEach((title, index) => {
+
+        const titleTop =
+            title.getBoundingClientRect().top;
+
+        const moveY =
+            limitTop - titleTop;
+
+        title.style.transform =
+            `translate(${titleMoves[index]}px, ${moveY}px)`;
+
+        title.style.zIndex = "15";
+
+    });
+
+}
+
+
+/* =========================
+   ANIMATION COMPLÈTE
+   DES TITRES
+   ========================= */
+
+function animateTitles() {
+
+    setTimeout(() => {
+
+        moveTitlesHorizontal();
+
+    }, 100);
+
+
+    setTimeout(() => {
+
+        moveTitlesTop();
+
+        showPhotos();
+
+    }, 500);
+
+}
+
+
+/* =========================
+   PREMIÈRE PHASE DES IMAGES
+   ========================= */
+
+function animateImageStart() {
+
+    imageBlocks.forEach((block, index) => {
+
+        const image =
+            block.querySelector("img");
 
         const croppedHeight =
             parseFloat(
                 block.dataset.croppedHeight
             );
 
-
-        /* =========================
-           HAUTEUR ORIGINELLE
-           ========================= */
-
         const originalHeight =
             parseFloat(
                 block.dataset.originalHeight
             );
 
-
-        /* =========================
-           DÉPART
-           ========================= */
 
         image.style.height =
             `${Math.min(
@@ -507,21 +561,11 @@ window.addEventListener("wheel", (event) => {
             )}px`;
 
 
-        /* =========================
-           PHASE 1
-           L'IMAGE REGAGNE SA HAUTEUR
-           ========================= */
-
         setTimeout(() => {
 
             image.style.height =
                 `${originalHeight}px`;
 
-
-            /* =========================
-               PHASE 2
-               DÉPLACEMENT VERS LE HAUT
-               ========================= */
 
             setTimeout(() => {
 
@@ -534,11 +578,86 @@ window.addEventListener("wheel", (event) => {
 
     });
 
+}
 
-    /* =========================
-       ATTEND QUE TOUTES LES IMAGES
-       AIENT FINI LEUR DÉPLACEMENT
-       ========================= */
+
+/* =========================
+   ALIGNEMENT DES IMAGES
+   ========================= */
+
+function alignImages() {
+
+    const tops =
+        [...imageBlocks].map(block => {
+
+            const image =
+                block.querySelector("img");
+
+            return image.getBoundingClientRect().top;
+
+        });
+
+
+    const targetTop =
+        Math.min(...tops);
+
+
+    imageBlocks.forEach(block => {
+
+        const image =
+            block.querySelector("img");
+
+        const croppedHeight =
+            parseFloat(
+                block.dataset.croppedHeight
+            );
+
+        image.style.height =
+            `${croppedHeight}px`;
+
+    });
+
+
+    setTimeout(() => {
+
+        imageBlocks.forEach(block => {
+
+            const image =
+                block.querySelector("img");
+
+            const currentTop =
+                image.getBoundingClientRect().top;
+
+            const difference =
+                targetTop - currentTop;
+
+            const currentTransform =
+                image.getBoundingClientRect().top
+                - currentTop
+                - 300
+                + difference;
+
+            image.style.transform =
+                `translateY(${currentTransform}px)`;
+
+        });
+
+        imageAnimationFinished = true;
+
+    }, 700);
+
+}
+
+
+/* =========================
+   ANIMATION COMPLÈTE
+   DES IMAGES
+   ========================= */
+
+function animateImages() {
+
+    animateImageStart();
+
 
     const totalDelay =
         (imageBlocks.length - 1) * 100
@@ -547,97 +666,81 @@ window.addEventListener("wheel", (event) => {
 
     setTimeout(() => {
 
-
-        /* =========================
-           REPÈRE LE TOP COMMUN
-           ========================= */
-
-        const tops =
-            [...imageBlocks].map(block => {
-
-                const image =
-                    block.querySelector("img");
-
-                return image.getBoundingClientRect().top;
-
-            });
-
-
-        const targetTop =
-            Math.min(...tops);
-
-
-        /* =========================
-           PHASE 3
-           RÉDUCTION À LA HAUTEUR
-           CROPPÉE
-           ========================= */
-
-        imageBlocks.forEach(block => {
-
-            const image =
-                block.querySelector("img");
-
-
-            const croppedHeight =
-                parseFloat(
-                    block.dataset.croppedHeight
-                );
-
-
-            image.style.height =
-                `${croppedHeight}px`;
-
-        });
-
-
-        /* =========================
-           PHASE 4
-           ATTEND QUE LA RÉDUCTION
-           SOIT TERMINÉE
-           ========================= */
-
-        setTimeout(() => {
-
-
-            /* =========================
-               TOUTES LES IMAGES
-               VERS LE MÊME TOP
-               ========================= */
-
-            imageBlocks.forEach(block => {
-
-                const image =
-                    block.querySelector("img");
-
-                const currentTop =
-                    image.getBoundingClientRect().top;
-
-                const difference =
-                    targetTop - currentTop;
-
-                const currentTransform =
-                    image.getBoundingClientRect().top
-                    - currentTop
-                    - 300
-                    + difference;
-
-                image.style.transform =
-                    `translateY(${currentTransform}px)`;
-
-            });
-
-            imageAnimationFinished = true;
-
-        }, 700);
+        alignImages();
 
     }, totalDelay);
 
+}
+
+
+/* =========================
+   PREMIER SCROLL
+   ========================= */
+
+function startImageAnimation() {
+
+    imagesAnimated = true;
+
+    animateImages();
 
     setTimeout(() => {
+
         showDescriptions();
+
     }, 500);
 
+}
+
+
+/* =========================
+   DEUXIÈME SCROLL
+   ========================= */
+
+function disappearContent() {
+
+    imagesDisappeared = true;
+
+    disappearImages();
+
+    disappearDescriptions();
+
+    animateTitles();
+
+}
+
+
+/* =========================
+   SCROLL
+   ========================= */
+
+window.addEventListener("wheel", (event) => {
+
+    if (event.deltaY <= 0) return;
+
+
+    /* =========================
+       DEUXIÈME SCROLL
+       ========================= */
+
+    if (
+        imagesAnimated &&
+        imageAnimationFinished &&
+        !imagesDisappeared
+    ) {
+
+        disappearContent();
+
+        return;
+
+    }
+
+
+    /* =========================
+       PREMIER SCROLL
+       ========================= */
+
+    if (imagesAnimated) return;
+
+    startImageAnimation();
+
 });
-
-
