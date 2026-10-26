@@ -1,3 +1,8 @@
+
+import * as THREE from
+    "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+
+
 const menuItems = document.querySelectorAll(".menu-item");
 
 
@@ -272,14 +277,17 @@ photos.forEach(image => {
 });
 
 
+
+
 /* =========================
    AFFICHAGE DES PHOTOS
    ========================= */
 
-
 function showPhotos() {
 
     const photoGrid = document.querySelector(".photo-grid");
+
+    if (!photoGrid) return;
 
     const limitTop = 150;
 
@@ -292,14 +300,22 @@ function showPhotos() {
     photoGrid.style.transform =
         `translateY(${moveY}px)`;
 
-
     photos.forEach((image, index) => {
 
+        // Photos invisibles avant leur tour.
+        image.style.opacity = "0";
+
         setTimeout(() => {
+
+            // Active l'affichage de la photo.
+            image.style.opacity = "1";
+
+            image.style.visibility = "visible";
 
             image.style.transform =
                 "translateY(0)";
 
+            // Conserve les numéros affichés.
             photoNumbers[index].style.transform =
                 "translateY(0)";
 
@@ -310,10 +326,9 @@ function showPhotos() {
 }
 
 
-
-
 /* =========================
-   BOUCLE DES PHOTOS
+   PHOTO LOOP — THREE.JS
+   Cycle strict en 5 étapes
    ========================= */
 
 let photoLoopStarted = false;
@@ -322,357 +337,629 @@ function startPhotoLoop() {
 
     if (photoLoopStarted) return;
 
+    const photoGrid = document.querySelector(".photo-grid");
+
+    if (!photoGrid) return;
+
+    const items = [
+        ...photoGrid.querySelectorAll(".image-item")
+    ];
+
+    if (!items.length) return;
+
     photoLoopStarted = true;
 
-    const photoGrid =
-        document.querySelector(".photo-grid");
-
-    const items =
-        [...photoGrid.querySelectorAll(".image-item")];
-
-    const duration = 200;
-
-    /* =========================
-       PAUSE ENTRE LES CYCLES
-       ========================= */
-
+    const duration = 60;
     const pauseDuration = 10000;
+    const activationDelay = 20;
+
+    const activeScale = 4;
+    const activeTop = 170;
+    const numberTop = 120;
+    const activeLeft = 1050;
+
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.OrthographicCamera(
+        0,
+        window.innerWidth,
+        0,
+        window.innerHeight,
+        0.1,
+        1000
+    );
+
+    camera.position.z = 100;
+
+    const renderer = new THREE.WebGLRenderer({
+        alpha: true,
+        antialias: true
+    });
+
+    renderer.setPixelRatio(
+        Math.min(window.devicePixelRatio, 2)
+    );
+
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+
+    Object.assign(renderer.domElement.style, {
+        position: "fixed",
+        inset: "0",
+        width: "100%",
+        height: "100%",
+        pointerEvents: "none",
+        zIndex: "900"
+    });
+
+    document.body.appendChild(renderer.domElement);
+
+    const loader = new THREE.TextureLoader();
+    const photos = [];
+
+    let rows = [];
+    let slotRows = [];
+    let cycleRunning = false;
 
     /* =========================
-       DÉCALAGE ENTRE LES IMAGES
+       OUTILS DE POSITION
        ========================= */
 
-    const activationDelay = 40;
+    function getRect(element) {
+        return element.getBoundingClientRect();
+    }
+
+    function getCenter(rect) {
+        return {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2
+        };
+    }
+
+
+
+    function setPosition(photo, x, y) {
+
+        photo.mesh.position.x = x;
+        photo.mesh.position.y = y;
+
+        const dx = x - photo.home.x;
+        const dy = y - photo.home.y;
+
+        // Déplace le numéro.
+        photo.number.style.transform =
+            `translate(${dx}px, ${dy}px)`;
+
+        // Déplace aussi l'image HTML.
+        photo.image.style.transform =
+            `translate(${dx}px, ${dy}px)`;
+    }
+
+
+
+    function setOpacity(photo, opacity) {
+        photo.mesh.material.opacity = opacity;
+    }
+
+    function wait(time) {
+        return new Promise(resolve =>
+            setTimeout(resolve, time)
+        );
+    }
+
+    /* =========================
+       ANIMATION THREE.JS
+       ========================= */
+
+
+    function animate(time, update) {
+
+        return new Promise(resolve => {
+
+            const start = performance.now();
+
+            function frame(now) {
+
+                const progress = Math.min(
+                    (now - start) / time,
+                    1
+                );
+
+            const eased =
+                progress < 0.5
+                    ? 4 * progress * progress * progress
+                    : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+                // Animation existante de Three.js.
+                update(eased, progress);
+
+                // Synchronisation des images HTML.
+                photos.forEach(photo => {
+
+                    const dx =
+                        photo.mesh.position.x - photo.home.x;
+
+                    const dy =
+                        photo.mesh.position.y - photo.home.y;
+
+                    const scaleX =
+                        photo.mesh.scale.x / photo.home.width;
+
+                    const scaleY =
+                        photo.mesh.scale.y / photo.home.height;
+
+                    photo.image.style.transform =
+                        `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`;
+
+                });
+
+                if (progress < 1) {
+                    requestAnimationFrame(frame);
+                } else {
+                    resolve();
+                }
+            }
+
+            requestAnimationFrame(frame);
+        });
+    }
+
+
+    function movePhoto(photo, target, time = duration) {
+
+        const startX = photo.mesh.position.x;
+        const startY = photo.mesh.position.y;
+
+        return animate(time, progress => {
+
+            setPosition(
+                photo,
+                startX + (target.x - startX) * progress,
+                startY + (target.y - startY) * progress
+            );
+        });
+    }
+
+    /* =========================
+       CHARGEMENT DES PHOTOS
+       ========================= */
+
+    const loadPromises = items.map(item => {
+
+        const image = item.querySelector("img");
+        const number = item.querySelector("h1");
+
+        if (!image || !number) {
+            return Promise.resolve();
+        }
+
+        return new Promise(resolve => {
+
+            loader.load(
+                image.currentSrc || image.src,
+
+                texture => {
+
+                    texture.colorSpace = THREE.SRGBColorSpace;
+
+                    const material = new THREE.MeshBasicMaterial({
+                        map: texture,
+                        transparent: true,
+                        opacity: 1,
+                        depthTest: false,
+                        depthWrite: false
+                    });
+
+                    const mesh = new THREE.Mesh(
+                        new THREE.PlaneGeometry(1, 1),
+                        material
+                    );
+
+                    mesh.renderOrder = 1;
+
+                    scene.add(mesh);
+
+                    const rect = getRect(image);
+                    const center = getCenter(rect);
+                    const numberRect = getRect(number);
+
+                    mesh.position.set(
+                        center.x,
+                        center.y,
+                        1
+                    );
+
+                    mesh.scale.set(
+                        rect.width,
+                        rect.height,
+                        1
+                    );
+
+                    const photo = {
+                        item,
+                        image,
+                        number,
+                        mesh,
+                        texture,
+
+                        home: {
+                            x: center.x,
+                            y: center.y,
+                            width: rect.width,
+                            height: rect.height
+                        },
+
+                        numberHome: {
+                            left: numberRect.left,
+                            top: numberRect.top,
+                            width: numberRect.width,
+                            height: numberRect.height
+                        },
+
+                        active: false
+                    };
+
+                    photos.push(photo);
+
+                    resolve();
+                },
+
+                undefined,
+
+                () => {
+                    // En cas d'erreur, l'image HTML reste visible.
+                    image.style.visibility = "visible";
+                    resolve();
+                }
+            );
+        });
+    });
+
+    /* =========================
+       RENDU
+       ========================= */
+
+    function render() {
+        renderer.render(scene, camera);
+        requestAnimationFrame(render);
+    }
+
+    /* =========================
+       IDENTIFICATION DES LIGNES
+       ========================= */
+
+    function identifyRows() {
+
+        const sorted = [...photos].sort((a, b) => {
+
+            const rectA = getRect(a.image);
+            const rectB = getRect(b.image);
+
+            return rectA.top - rectB.top ||
+                   rectA.left - rectB.left;
+        });
+
+        const grouped = [];
+
+        sorted.forEach(photo => {
+
+            const rect = getRect(photo.image);
+
+            let row = grouped.find(group =>
+                Math.abs(group.top - rect.top) < 20
+            );
+
+            if (!row) {
+                row = {
+                    top: rect.top,
+                    photos: []
+                };
+
+                grouped.push(row);
+            }
+
+            row.photos.push(photo);
+        });
+
+        grouped.forEach(row => {
+
+            row.photos.sort((a, b) =>
+                getRect(a.image).left -
+                getRect(b.image).left
+            );
+        });
+
+        grouped.sort((a, b) => a.top - b.top);
+
+        rows = grouped.map(row => row.photos);
+    }
 
     /* =========================
        PHOTO ACTIVE
        ========================= */
 
-    const activeScale = 4;
+    async function activatePhoto(photo, returnSlot) {
 
-    /*
-       TOP FIXE DE LA PHOTO ACTIVE
-    */
+        photo.active = true;
 
-    const activeTop = 170;
+        const startX = photo.mesh.position.x;
+        const startY = photo.mesh.position.y;
 
-    /*
-       TOP FIXE DU NUMÉRO ACTIF
-    */
+        const startWidth = photo.mesh.scale.x;
+        const startHeight = photo.mesh.scale.y;
 
-    const numberTop = 120;
+        const targetWidth =
+            photo.home.width * activeScale;
 
-    /*
-    DÉCALAGE HORIZONTAL DES ÉLÉMENTS ACTIFS
-    */
+        const targetHeight =
+            photo.home.height * activeScale;
 
-    const activeLeft = 1050;
+        const targetX =
+            activeLeft + targetWidth / 2;
 
-    function moveOnePhoto(index) {
+        const targetY =
+            activeTop + targetHeight / 2;
 
-        if (index <= 0) {
+        photo.mesh.renderOrder = 10;
+        photo.number.style.zIndex = "50";
+        photo.number.style.transition = "none";
 
-            const firstItem =
-                items[0];
+        const numberDX =
+            activeLeft -
+            photo.numberHome.left +
+            photo.numberHome.width * (activeScale - 1) / 2;
 
-            const firstImage =
-                firstItem.querySelector("img");
+        const numberDY =
+            numberTop -
+            photo.numberHome.top +
+            photo.numberHome.height * (activeScale - 1) / 2;
 
-            const firstNumber =
-                firstItem.querySelector("h1");
+        photo.number.style.transform =
+            `translate(${numberDX}px, ${numberDY}px) scale(${activeScale})`;
 
+        // Agrandissement
+        await animate(duration, progress => {
 
-            /* =========================
-               PREMIÈRE IMAGE QUI SORT
-               ========================= */
+            photo.mesh.position.x =
+                startX + (targetX - startX) * progress;
 
-            firstItem.style.transition =
-                `transform ${duration}ms ease-out`;
+            photo.mesh.position.y =
+                startY + (targetY - startY) * progress;
 
-            firstItem.style.transform =
-                "translateX(-100%)";
+            photo.mesh.scale.x =
+                startWidth +
+                (targetWidth - startWidth) * progress;
 
+            photo.mesh.scale.y =
+                startHeight +
+                (targetHeight - startHeight) * progress;
+        });
 
-            setTimeout(() => {
+        // Pause
+        await wait(pauseDuration);
 
-                /* =========================
-                   001 PASSE À LA FIN
-                   ========================= */
+        // Retour à son nouvel emplacement
+        await animate(duration, progress => {
 
-                items.shift();
+            photo.mesh.position.x =
+                targetX +
+                (returnSlot.x - targetX) * progress;
 
-                items.push(firstItem);
+            photo.mesh.position.y =
+                targetY +
+                (returnSlot.y - targetY) * progress;
 
-                items.forEach(item => {
-                    photoGrid.appendChild(item);
-                });
+            photo.mesh.scale.x =
+                targetWidth +
+                (photo.home.width - targetWidth) * progress;
 
+            photo.mesh.scale.y =
+                targetHeight +
+                (photo.home.height - targetHeight) * progress;
+        });
 
-                /* =========================
-                   RESET
-                   ========================= */
+        photo.active = false;
+        photo.mesh.renderOrder = 1;
 
-                items.forEach(item => {
+        photo.number.style.zIndex = "";
+        photo.number.style.transition = "none";
 
-                    item.style.transition =
-                        `transform 200ms ease-out`;
+        setPosition(
+            photo,
+            returnSlot.x,
+            returnSlot.y
+        );
+    }
 
-                    item.style.transform =
-                        "translateX(0)";
+    /* =========================
+       CYCLE EN 5 ÉTAPES
+       ========================= */
 
-                    item.style.opacity =
-                        "1";
+    async function runCycle() {
 
-                });
+        if (cycleRunning || rows.length < 2) return;
 
+        cycleRunning = true;
 
-                /* =========================
-                   PHOTO ACTIVE
-                   ========================= */
+        const upperRow = rows[0];
+        const lowerRow = rows[1];
 
-                firstItem.style.zIndex =
-                    "50";
-
-                firstImage.style.transition =
-                    `transform 200ms ease-out`;
-
-
-                firstNumber.style.transition =
-                    `transform 200ms ease-out`;
-
-
-
-
-                /* =========================
-                IMAGE ACTIVE
-                ========================= */
-
-                const imageRect =
-                    firstImage.getBoundingClientRect();
-
-                const scaleCorrection =
-                    (imageRect.height * (activeScale - 1)) / 2;
-
-                const activeTranslateY =
-                    activeTop -
-                    imageRect.top +
-                    scaleCorrection;
-
-                const activeTranslateX =
-                    activeLeft -
-                    imageRect.left +
-                    (imageRect.width * (activeScale - 1)) / 2;
-
-
-                firstImage.style.transform =
-                    `translate(
-                        ${activeTranslateX}px,
-                        ${activeTranslateY}px
-                    )
-                    scale(${activeScale})`;
-
-
-
-                /* =========================
-                NUMÉRO ACTIF
-                ========================= */
-
-                const numberRect =
-                    firstNumber.getBoundingClientRect();
-
-                const numberScaleCorrection =
-                    (numberRect.height * (activeScale - 1)) / 2;
-
-                const numberTranslateY =
-                    numberTop -
-                    numberRect.top +
-                    numberScaleCorrection;
-
-                const numberTranslateX =
-                    activeLeft -
-                    numberRect.left +
-                    (numberRect.width * (activeScale - 1)) / 2;
-
-
-                firstNumber.style.transform =
-                    `translate(
-                        ${numberTranslateX}px,
-                        ${numberTranslateY}px
-                    )
-                    scale(${activeScale})`;
-
-
-                /*
-                   Pause pendant laquelle
-                   la photo et son numéro
-                   restent grands
-                */
-
-                setTimeout(() => {
-
-                    /* =========================
-                       PHOTO + NUMÉRO REPRENNENT
-                       LEUR TAILLE NORMALE
-                       ========================= */
-
-                    firstImage.style.transition =
-                        `transform ${duration}ms ease-out`;
-
-                    firstNumber.style.transition =
-                        `transform ${duration}ms ease-out`;
-
-
-                    firstImage.style.transform =
-                        "translate(0, 0) scale(1)";
-
-                    firstNumber.style.transform =
-                        "translate(0, 0) scale(1)";
-
-
-                    setTimeout(() => {
-
-                        firstImage.style.width =
-                            "";
-
-                        firstImage.style.height =
-                            "";
-
-                        firstImage.style.maxWidth =
-                            "";
-
-                        firstImage.style.maxHeight =
-                            "";
-
-                        firstImage.style.objectFit =
-                            "";
-
-                        firstItem.style.overflow =
-                            "";
-
-                        firstItem.style.zIndex =
-                            "20";
-
-                    }, duration);
-
-
-                    /*
-                       Petit délai pour laisser
-                       la photo rejoindre le fil
-                    */
-
-                    setTimeout(() => {
-
-                        moveOnePhoto(
-                            items.length - 1
-                        );
-
-                    }, duration);
-
-                }, pauseDuration);
-
-            }, duration);
-
+        if (!upperRow.length || !lowerRow.length) {
+            cycleRunning = false;
             return;
         }
 
+        const upperSlots = slotRows[0];
+        const lowerSlots = slotRows[1];
 
-        const currentItem =
-            items[index];
-
-        const previousItem =
-            items[index - 1];
-
-
-        /*
-           La première image de la
-           deuxième ligne correspond
-           à l'index 8.
-        */
-
-        const isStartOfSecondRow =
-            index === 8;
-
+        const exitingPhoto = lowerRow[0];
 
         /* =========================
-           IMAGE ACTUELLE
+           1. LIGNE INFÉRIEURE
+           Déplacement de droite à gauche
            ========================= */
 
-        if (isStartOfSecondRow) {
+        for (let i = lowerRow.length - 1; i >= 1; i--) {
 
-            currentItem.style.transition =
-                `transform ${duration}ms ease-out,
-                 opacity ${duration}ms ease`;
+            await movePhoto(
+                lowerRow[i],
+                lowerSlots[i - 1]
+            );
 
-            currentItem.style.transform =
-                "translateX(-100%)";
-
-            currentItem.style.opacity =
-                "0";
-
-        } else {
-
-            currentItem.style.transition =
-                `transform ${duration}ms ease-out`;
-
-            currentItem.style.transform =
-                "translateX(-100%)";
-
+            await wait(activationDelay);
         }
 
+        await movePhoto(exitingPhoto, {
+            x: lowerSlots[0].x - exitingPhoto.home.width,
+            y: lowerSlots[0].y
+        });
 
         /* =========================
-           IMAGE PRÉCÉDENTE
+           2. DISPARITION INSTANTANÉE
            ========================= */
 
-        setTimeout(() => {
+        setOpacity(exitingPhoto, 0);
 
-            previousItem.style.transition =
-                `transform ${duration}ms ease-out`;
+        /* =========================
+           3. RÉAPPARITION À DROITE
+           DE LA LIGNE SUPÉRIEURE
+           ========================= */
 
-            previousItem.style.transform =
-                "translateX(-100%)";
+        const lastUpperSlot =
+            upperSlots[upperSlots.length - 1];
 
+        setPosition(
+            exitingPhoto,
+            lastUpperSlot.x,
+            lastUpperSlot.y
+        );
 
-            /* =========================
-               PASSAGE 2e → 1re LIGNE
-               ========================= */
+        exitingPhoto.mesh.scale.set(
+            exitingPhoto.home.width,
+            exitingPhoto.home.height,
+            1
+        );
 
-            if (isStartOfSecondRow) {
+        exitingPhoto.mesh.position.z = 5;
+        exitingPhoto.mesh.renderOrder = 5;
 
-                currentItem.style.transition =
-                    "none";
+        setOpacity(exitingPhoto, 1);
 
-                currentItem.style.transform =
-                    "translateX(0)";
+        await wait(duration);
 
-                currentItem.style.opacity =
-                    "0";
-            }
+        /* =========================
+           4. LIGNE SUPÉRIEURE
+           Déplacement de droite à gauche
+           ========================= */
 
+        for (let i = upperRow.length - 1; i >= 1; i--) {
 
-            /* =========================
-               IMAGE SUIVANTE
-               ========================= */
+            await movePhoto(
+                upperRow[i],
+                upperSlots[i - 1]
+            );
 
-            moveOnePhoto(index - 1);
+            await wait(activationDelay);
+        }
 
-        }, activationDelay);
+        const upperExit = upperRow[0];
 
+        await movePhoto(upperExit, {
+            x: upperSlots[0].x - upperExit.home.width,
+            y: upperSlots[0].y
+        });
+
+        /* =========================
+           5. PHOTO ACTIVE
+           ========================= */
+
+        setOpacity(upperExit, 1);
+
+        const returnSlot =
+            lowerSlots[lowerSlots.length - 1];
+
+        await activatePhoto(upperExit, returnSlot);
+
+        /* =========================
+           ROTATION LOGIQUE
+           ========================= */
+
+        rows = [
+            upperRow.slice(1).concat(exitingPhoto),
+            lowerRow.slice(1).concat(upperExit)
+        ];
+
+        // Toutes les photos reprennent une profondeur normale.
+        photos.forEach(photo => {
+
+            setOpacity(photo, 1);
+
+            photo.mesh.position.z = 1;
+            photo.mesh.renderOrder = 1;
+        });
+
+        cycleRunning = false;
+
+        setTimeout(runCycle, duration);
     }
+
+    /* =========================
+       DÉMARRAGE
+       ========================= */
+
+
+    Promise.all(loadPromises).then(() => {
+
+        identifyRows();
+
+        if (rows.length < 2) {
+            photoLoopStarted = false;
+            return;
+        }
+
+        slotRows = rows.map(row =>
+            row.map(photo => ({
+                x: photo.home.x,
+                y: photo.home.y
+            }))
+        );
+
+        // Affiche les photos Three.js.
+        render();
+
+        // Attend que le navigateur ait rendu le canvas.
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+
+
+
+                // Lance le cycle.
+                setTimeout(runCycle, 1000);
+            });
+        });
+    });
 
 
     /* =========================
-       PREMIER CYCLE
+       REDIMENSIONNEMENT
        ========================= */
 
-    setTimeout(() => {
+    window.addEventListener("resize", () => {
 
-        moveOnePhoto(
-            items.length - 1
+        camera.left = 0;
+        camera.right = window.innerWidth;
+        camera.top = 0;
+        camera.bottom = window.innerHeight;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(
+            window.innerWidth,
+            window.innerHeight
         );
-
-    }, 1000);
-
+    });
 }
 
 
