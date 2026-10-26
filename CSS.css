@@ -245,7 +245,7 @@ body {
 .info-block h2 {
     position: relative;
     z-index: 13;
-    color: #515151;
+    color: #ffffff;
     font-size: 25px;
 }
 
@@ -446,4 +446,7 @@ body {
     transition: none;
 
     opacity: 0;
+
+    transition: opacity 0.4s ease;
+
 }
