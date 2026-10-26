@@ -319,11 +319,13 @@ function showPhotos() {
             photoNumbers[index].style.transform =
                 "translateY(0)";
 
-        }, index * 80);
+        }, (photos.length - 1 - index) * 40);
 
     });
 
 }
+
+
 
 
 /* =========================
